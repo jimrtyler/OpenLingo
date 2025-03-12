@@ -1,0 +1,1522 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enhanced Language Vocabulary Matcher</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f5f5;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            color: #333;
+        }
+
+        header {
+            background-color: #58cc02;
+            color: white;
+            width: 100%;
+            text-align: center;
+            padding: 20px 0;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+        
+        .controls {
+            margin: 20px 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            width: 100%;
+            max-width: 90%;
+            flex-wrap: wrap;
+            box-sizing: border-box;
+            padding: 0 10px;
+        }
+        
+        .control-group {
+            display: flex;
+            align-items: center;
+            min-width: 0;
+            margin: 5px;
+        }
+        
+        .control-group label {
+            margin-right: 5px;
+            white-space: nowrap;
+            font-size: 14px;
+            font-weight: bold;
+        }
+        
+        .select-input {
+            padding: 8px;
+            border-radius: 8px;
+            border: 2px solid #e1e1e1;
+            background-color: white;
+            font-size: 14px;
+            cursor: pointer;
+            min-width: 150px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .game-container {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+            width: 100%;
+            max-width: 900px;
+        }
+
+        .column {
+            margin: 0 20px;
+            width: 45%;
+            max-width: 400px;
+        }
+        
+        .column-header {
+            text-align: center;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #1cb0f6;
+            font-size: 18px;
+        }
+
+        .card {
+            background-color: white;
+            border: 2px solid #e1e1e1;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 10px 0;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            word-break: break-word;
+        }
+
+        .card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .card.selected {
+            background-color: #84d8ff;
+            border-color: #1cb0f6;
+            color: #1cb0f6;
+        }
+
+        .card.match {
+            background-color: #d7ffb8;
+            border-color: #58cc02;
+            color: #58cc02;
+        }
+        
+        .card.incorrect {
+            background-color: #ffb8b8;
+            border-color: #ff4b4b;
+            color: #ff4b4b;
+            animation: shake 0.5s;
+        }
+        
+        @keyframes shake {
+            0% { transform: translateX(0); }
+            20% { transform: translateX(-5px); }
+            40% { transform: translateX(5px); }
+            60% { transform: translateX(-5px); }
+            80% { transform: translateX(5px); }
+            100% { transform: translateX(0); }
+        }
+
+        .card.fade-out {
+            opacity: 0;
+            transform: scale(0.9);
+        }
+
+        .stats-container {
+            margin-top: 30px;
+            width: 100%;
+            max-width: 800px;
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+        }
+        
+        .stat-box {
+            background-color: white;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 10px;
+            min-width: 150px;
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        
+        .stat-label {
+            font-size: 14px;
+            color: #777;
+        }
+        
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #1cb0f6;
+            margin-top: 5px;
+        }
+
+        .progress-container {
+            width: 80%;
+            max-width: 400px;
+            margin-top: 20px;
+            background-color: #e1e1e1;
+            height: 10px;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background-color: #58cc02;
+            width: 0%;
+            transition: width 0.5s ease;
+        }
+
+        .btn {
+            margin: 10px;
+            padding: 10px 20px;
+            background-color: #58cc02;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+
+        .btn:hover {
+            background-color: #46a302;
+        }
+        
+        .btn.secondary {
+            background-color: #1cb0f6;
+        }
+        
+        .btn.secondary:hover {
+            background-color: #0e9cd1;
+        }
+        
+        .button-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-top: 20px;
+            margin-bottom: 40px;
+        }
+
+        @media (max-width: 768px) {
+            .game-container {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .column {
+                width: 90%;
+                margin: 10px 0;
+            }
+            
+            .controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .control-group {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .control-group label {
+                margin-bottom: 5px;
+            }
+            
+            .select-input {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1 id="header-title">Language Vocabulary Matcher</h1>
+    </header>
+    
+    <div class="controls">
+        <div class="control-group">
+            <label for="language-pair-select">Language Pair:</label>
+            <select id="language-pair-select" class="select-input">
+                <!-- Language pair options will be dynamically generated -->
+            </select>
+        </div>
+        <div class="control-group">
+            <label for="category-select">Vocabulary Category:</label>
+            <select id="category-select" class="select-input">
+                <!-- Category options will be dynamically generated -->
+            </select>
+        </div>
+        <div class="control-group">
+            <label for="difficulty-select">Difficulty:</label>
+            <select id="difficulty-select" class="select-input">
+                <option value="5">Easy (5 pairs)</option>
+                <option value="10" selected>Medium (10 pairs)</option>
+                <option value="15">Hard (15 pairs)</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="game-container">
+        <div class="column">
+            <div id="source-column-header" class="column-header">English</div>
+            <div id="source-column"></div>
+        </div>
+        <div class="column">
+            <div id="target-column-header" class="column-header">Target Language</div>
+            <div id="target-column"></div>
+        </div>
+    </div>
+
+    <div class="stats-container">
+        <div class="stat-box">
+            <div class="stat-label">Matched Pairs</div>
+            <div id="matched-counter" class="stat-value">0</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-label">Total Score</div>
+            <div id="score" class="stat-value">0</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-label">Attempts</div>
+            <div id="attempts" class="stat-value">0</div>
+        </div>
+    </div>
+
+    <div class="progress-container">
+        <div class="progress-bar" id="progress-bar"></div>
+    </div>
+
+    <div class="button-container">
+        <button class="btn" id="new-words-btn">New Words</button>
+        <button class="btn secondary" id="reset-score-btn">Reset Score</button>
+    </div>
+
+    <script>
+        // Language data structure with vocabulary organized by category
+        const languageData = {
+            // Language pairs
+            languagePairs: {
+                "english-german": {
+                    name: "English - German",
+                    sourceLanguage: "english",
+                    targetLanguage: "german",
+                    sourceColumnLabel: "English",
+                    targetColumnLabel: "German"
+                },
+                "english-french": {
+                    name: "English - French",
+                    sourceLanguage: "english",
+                    targetLanguage: "french",
+                    sourceColumnLabel: "English",
+                    targetColumnLabel: "French"
+                },
+                "english-spanish": {
+                    name: "English - Spanish",
+                    sourceLanguage: "english",
+                    targetLanguage: "spanish",
+                    sourceColumnLabel: "English",
+                    targetColumnLabel: "Spanish"
+                },
+                "english-italian": {
+                    name: "English - Italian",
+                    sourceLanguage: "english",
+                    targetLanguage: "italian",
+                    sourceColumnLabel: "English",
+                    targetColumnLabel: "Italian"
+                },
+                "english-hindi": {
+                    name: "English - Hindi",
+                    sourceLanguage: "english",
+                    targetLanguage: "hindi",
+                    sourceColumnLabel: "English",
+                    targetColumnLabel: "Hindi"
+                },
+                "english-arabic": {
+                    name: "English - Arabic",
+                    sourceLanguage: "english",
+                    targetLanguage: "arabic",
+                    sourceColumnLabel: "English",
+                    targetColumnLabel: "Arabic"
+                },
+                "english-bengali": {
+                    name: "English - Bengali",
+                    sourceLanguage: "english",
+                    targetLanguage: "bengali",
+                    sourceColumnLabel: "English",
+                    targetColumnLabel: "Bengali"
+                }
+            },
+            
+            // Vocabulary categories
+            categories: {
+                "basics": {
+                    name: "Basics",
+                    vocabulary: {
+                        "english-german": [
+                            { english: "hello", german: "hallo" },
+                            { english: "goodbye", german: "auf Wiedersehen" },
+                            { english: "please", german: "bitte" },
+                            { english: "thank you", german: "danke" },
+                            { english: "yes", german: "ja" },
+                            { english: "no", german: "nein" },
+                            { english: "sorry", german: "Entschuldigung" },
+                            { english: "excuse me", german: "Entschuldigen Sie" },
+                            { english: "good morning", german: "guten Morgen" },
+                            { english: "good evening", german: "guten Abend" },
+                            { english: "good night", german: "gute Nacht" },
+                            { english: "how are you", german: "wie geht es dir" },
+                            { english: "I am fine", german: "mir geht es gut" },
+                            { english: "what", german: "was" },
+                            { english: "who", german: "wer" },
+                            { english: "when", german: "wann" },
+                            { english: "where", german: "wo" },
+                            { english: "why", german: "warum" },
+                            { english: "how", german: "wie" },
+                            { english: "and", german: "und" }
+                        ],
+                        "english-french": [
+                            { english: "hello", french: "bonjour" },
+                            { english: "goodbye", french: "au revoir" },
+                            { english: "please", french: "s'il vous plaît" },
+                            { english: "thank you", french: "merci" },
+                            { english: "yes", french: "oui" },
+                            { english: "no", french: "non" },
+                            { english: "sorry", french: "désolé" },
+                            { english: "excuse me", french: "excusez-moi" },
+                            { english: "good morning", french: "bonjour" },
+                            { english: "good evening", french: "bonsoir" },
+                            { english: "good night", french: "bonne nuit" },
+                            { english: "how are you", french: "comment allez-vous" },
+                            { english: "I am fine", french: "je vais bien" },
+                            { english: "what", french: "quoi" },
+                            { english: "who", french: "qui" },
+                            { english: "when", french: "quand" },
+                            { english: "where", french: "où" },
+                            { english: "why", french: "pourquoi" },
+                            { english: "how", french: "comment" },
+                            { english: "and", french: "et" }
+                        ],
+                        "english-spanish": [
+                            { english: "hello", spanish: "hola" },
+                            { english: "goodbye", spanish: "adiós" },
+                            { english: "please", spanish: "por favor" },
+                            { english: "thank you", spanish: "gracias" },
+                            { english: "yes", spanish: "sí" },
+                            { english: "no", spanish: "no" },
+                            { english: "sorry", spanish: "lo siento" },
+                            { english: "excuse me", spanish: "disculpe" },
+                            { english: "good morning", spanish: "buenos días" },
+                            { english: "good evening", spanish: "buenas tardes" },
+                            { english: "good night", spanish: "buenas noches" },
+                            { english: "how are you", spanish: "cómo estás" },
+                            { english: "I am fine", spanish: "estoy bien" },
+                            { english: "what", spanish: "qué" },
+                            { english: "who", spanish: "quién" },
+                            { english: "when", spanish: "cuándo" },
+                            { english: "where", spanish: "dónde" },
+                            { english: "why", spanish: "por qué" },
+                            { english: "how", spanish: "cómo" },
+                            { english: "and", spanish: "y" }
+                        ],
+                        "english-italian": [
+                            { english: "hello", italian: "ciao" },
+                            { english: "goodbye", italian: "arrivederci" },
+                            { english: "please", italian: "per favore" },
+                            { english: "thank you", italian: "grazie" },
+                            { english: "yes", italian: "sì" },
+                            { english: "no", italian: "no" },
+                            { english: "sorry", italian: "mi dispiace" },
+                            { english: "excuse me", italian: "scusi" },
+                            { english: "good morning", italian: "buongiorno" },
+                            { english: "good evening", italian: "buonasera" },
+                            { english: "good night", italian: "buonanotte" },
+                            { english: "how are you", italian: "come stai" },
+                            { english: "I am fine", italian: "sto bene" },
+                            { english: "what", italian: "cosa" },
+                            { english: "who", italian: "chi" },
+                            { english: "when", italian: "quando" },
+                            { english: "where", italian: "dove" },
+                            { english: "why", italian: "perché" },
+                            { english: "how", italian: "come" },
+                            { english: "and", italian: "e" }
+                        ],
+                        "english-hindi": [
+                            { english: "hello", hindi: "नमस्ते (namaste)" },
+                            { english: "goodbye", hindi: "अलविदा (alvida)" },
+                            { english: "please", hindi: "कृपया (kripaya)" },
+                            { english: "thank you", hindi: "धन्यवाद (dhanyavaad)" },
+                            { english: "yes", hindi: "हाँ (haan)" },
+                            { english: "no", hindi: "नहीं (nahin)" },
+                            { english: "sorry", hindi: "माफ़ करें (maaf karen)" },
+                            { english: "excuse me", hindi: "क्षमा कीजिए (kshama kijiye)" },
+                            { english: "good morning", hindi: "सुप्रभात (suprabhat)" },
+                            { english: "good evening", hindi: "शुभ संध्या (shubh sandhya)" },
+                            { english: "good night", hindi: "शुभ रात्रि (shubh ratri)" },
+                            { english: "how are you", hindi: "आप कैसे हैं (aap kaise hain)" },
+                            { english: "I am fine", hindi: "मैं ठीक हूँ (main theek hoon)" },
+                            { english: "what", hindi: "क्या (kya)" },
+                            { english: "who", hindi: "कौन (kaun)" },
+                            { english: "when", hindi: "कब (kab)" },
+                            { english: "where", hindi: "कहाँ (kahan)" },
+                            { english: "why", hindi: "क्यों (kyon)" },
+                            { english: "how", hindi: "कैसे (kaise)" },
+                            { english: "and", hindi: "और (aur)" }
+                        ],
+                        "english-arabic": [
+                            { english: "hello", arabic: "مرحبا (marhaba)" },
+                            { english: "goodbye", arabic: "مع السلامة (ma'a as-salama)" },
+                            { english: "please", arabic: "من فضلك (min fadlak)" },
+                            { english: "thank you", arabic: "شكرا (shukran)" },
+                            { english: "yes", arabic: "نعم (na'am)" },
+                            { english: "no", arabic: "لا (la)" },
+                            { english: "sorry", arabic: "آسف (aasif)" },
+                            { english: "excuse me", arabic: "عفوا (afwan)" },
+                            { english: "good morning", arabic: "صباح الخير (sabah al-khair)" },
+                            { english: "good evening", arabic: "مساء الخير (masa' al-khair)" },
+                            { english: "good night", arabic: "تصبح على خير (tusbih ala khair)" },
+                            { english: "how are you", arabic: "كيف حالك (kayfa haluk)" },
+                            { english: "I am fine", arabic: "أنا بخير (ana bikhair)" },
+                            { english: "what", arabic: "ما (ma)" },
+                            { english: "who", arabic: "من (man)" },
+                            { english: "when", arabic: "متى (mata)" },
+                            { english: "where", arabic: "أين (ayna)" },
+                            { english: "why", arabic: "لماذا (limadha)" },
+                            { english: "how", arabic: "كيف (kayfa)" },
+                            { english: "and", arabic: "و (wa)" }
+                        ],
+                        "english-bengali": [
+                            { english: "hello", bengali: "নমস্কার (nomoskar)" },
+                            { english: "goodbye", bengali: "বিদায় (biday)" },
+                            { english: "please", bengali: "দয়া করে (doya kore)" },
+                            { english: "thank you", bengali: "ধন্যবাদ (dhonnobad)" },
+                            { english: "yes", bengali: "হ্যাঁ (hya)" },
+                            { english: "no", bengali: "না (na)" },
+                            { english: "sorry", bengali: "দুঃখিত (dukhito)" },
+                            { english: "excuse me", bengali: "মাফ করবেন (maf korben)" },
+                            { english: "good morning", bengali: "শুভ সকাল (shuvo sokal)" },
+                            { english: "good evening", bengali: "শুভ সন্ধ্যা (shuvo shondha)" },
+                            { english: "good night", bengali: "শুভ রাত্রি (shuvo ratri)" },
+                            { english: "how are you", bengali: "আপনি কেমন আছেন (apni kemon achen)" },
+                            { english: "I am fine", bengali: "আমি ভালো আছি (ami valo achi)" },
+                            { english: "what", bengali: "কী (ki)" },
+                            { english: "who", bengali: "কে (ke)" },
+                            { english: "when", bengali: "কখন (kokhon)" },
+                            { english: "where", bengali: "কোথায় (kothay)" },
+                            { english: "why", bengali: "কেন (keno)" },
+                            { english: "how", bengali: "কীভাবে (kivabe)" },
+                            { english: "and", bengali: "এবং (ebong)" }
+                        ]
+                    }
+                },
+                "food": {
+                    name: "Food & Drinks",
+                    vocabulary: {
+                        "english-german": [
+                            { english: "apple", german: "Apfel" },
+                            { english: "banana", german: "Banane" },
+                            { english: "bread", german: "Brot" },
+                            { english: "cheese", german: "Käse" },
+                            { english: "chicken", german: "Huhn" },
+                            { english: "coffee", german: "Kaffee" },
+                            { english: "egg", german: "Ei" },
+                            { english: "fish", german: "Fisch" },
+                            { english: "juice", german: "Saft" },
+                            { english: "meat", german: "Fleisch" },
+                            { english: "milk", german: "Milch" },
+                            { english: "orange", german: "Orange" },
+                            { english: "pasta", german: "Nudeln" },
+                            { english: "potato", german: "Kartoffel" },
+                            { english: "rice", german: "Reis" },
+                            { english: "salad", german: "Salat" },
+                            { english: "soup", german: "Suppe" },
+                            { english: "tea", german: "Tee" },
+                            { english: "water", german: "Wasser" },
+                            { english: "wine", german: "Wein" }
+                        ],
+                        "english-french": [
+                            { english: "apple", french: "pomme" },
+                            { english: "banana", french: "banane" },
+                            { english: "bread", french: "pain" },
+                            { english: "cheese", french: "fromage" },
+                            { english: "chicken", french: "poulet" },
+                            { english: "coffee", french: "café" },
+                            { english: "egg", french: "œuf" },
+                            { english: "fish", french: "poisson" },
+                            { english: "juice", french: "jus" },
+                            { english: "meat", french: "viande" },
+                            { english: "milk", french: "lait" },
+                            { english: "orange", french: "orange" },
+                            { english: "pasta", french: "pâtes" },
+                            { english: "potato", french: "pomme de terre" },
+                            { english: "rice", french: "riz" },
+                            { english: "salad", french: "salade" },
+                            { english: "soup", french: "soupe" },
+                            { english: "tea", french: "thé" },
+                            { english: "water", french: "eau" },
+                            { english: "wine", french: "vin" }
+                        ],
+                        "english-spanish": [
+                            { english: "apple", spanish: "manzana" },
+                            { english: "banana", spanish: "plátano" },
+                            { english: "bread", spanish: "pan" },
+                            { english: "cheese", spanish: "queso" },
+                            { english: "chicken", spanish: "pollo" },
+                            { english: "coffee", spanish: "café" },
+                            { english: "egg", spanish: "huevo" },
+                            { english: "fish", spanish: "pescado" },
+                            { english: "juice", spanish: "jugo" },
+                            { english: "meat", spanish: "carne" },
+                            { english: "milk", spanish: "leche" },
+                            { english: "orange", spanish: "naranja" },
+                            { english: "pasta", spanish: "pasta" },
+                            { english: "potato", spanish: "patata" },
+                            { english: "rice", spanish: "arroz" },
+                            { english: "salad", spanish: "ensalada" },
+                            { english: "soup", spanish: "sopa" },
+                            { english: "tea", spanish: "té" },
+                            { english: "water", spanish: "agua" },
+                            { english: "wine", spanish: "vino" }
+                        ],
+                        "english-italian": [
+                            { english: "apple", italian: "mela" },
+                            { english: "banana", italian: "banana" },
+                            { english: "bread", italian: "pane" },
+                            { english: "cheese", italian: "formaggio" },
+                            { english: "chicken", italian: "pollo" },
+                            { english: "coffee", italian: "caffè" },
+                            { english: "egg", italian: "uovo" },
+                            { english: "fish", italian: "pesce" },
+                            { english: "juice", italian: "succo" },
+                            { english: "meat", italian: "carne" },
+                            { english: "milk", italian: "latte" },
+                            { english: "orange", italian: "arancia" },
+                            { english: "pasta", italian: "pasta" },
+                            { english: "potato", italian: "patata" },
+                            { english: "rice", italian: "riso" },
+                            { english: "salad", italian: "insalata" },
+                            { english: "soup", italian: "zuppa" },
+                            { english: "tea", italian: "tè" },
+                            { english: "water", italian: "acqua" },
+                            { english: "wine", italian: "vino" }
+                        ],
+                        "english-hindi": [
+                            { english: "apple", hindi: "सेब (seb)" },
+                            { english: "banana", hindi: "केला (kela)" },
+                            { english: "bread", hindi: "रोटी (roti)" },
+                            { english: "cheese", hindi: "पनीर (paneer)" },
+                            { english: "chicken", hindi: "चिकन (chicken)" },
+                            { english: "coffee", hindi: "कॉफ़ी (coffee)" },
+                            { english: "egg", hindi: "अंडा (anda)" },
+                            { english: "fish", hindi: "मछली (machli)" },
+                            { english: "juice", hindi: "रस (ras)" },
+                            { english: "meat", hindi: "मांस (mans)" },
+                            { english: "milk", hindi: "दूध (doodh)" },
+                            { english: "orange", hindi: "संतरा (santra)" },
+                            { english: "pasta", hindi: "पास्ता (pasta)" },
+                            { english: "potato", hindi: "आलू (aloo)" },
+                            { english: "rice", hindi: "चावल (chawal)" },
+                            { english: "salad", hindi: "सलाद (salad)" },
+                            { english: "soup", hindi: "सूप (soup)" },
+                            { english: "tea", hindi: "चाय (chai)" },
+                            { english: "water", hindi: "पानी (pani)" },
+                            { english: "wine", hindi: "शराब (sharab)" }
+                        ],
+                        "english-arabic": [
+                            { english: "apple", arabic: "تفاحة (tuffaha)" },
+                            { english: "banana", arabic: "موز (mawz)" },
+                            { english: "bread", arabic: "خبز (khubz)" },
+                            { english: "cheese", arabic: "جبن (jubn)" },
+                            { english: "chicken", arabic: "دجاج (dajaj)" },
+                            { english: "coffee", arabic: "قهوة (qahwa)" },
+                            { english: "egg", arabic: "بيضة (bayda)" },
+                            { english: "fish", arabic: "سمك (samak)" },
+                            { english: "juice", arabic: "عصير (asir)" },
+                            { english: "meat", arabic: "لحم (lahm)" },
+                            { english: "milk", arabic: "حليب (halib)" },
+                            { english: "orange", arabic: "برتقال (burtuqal)" },
+                            { english: "pasta", arabic: "معكرونة (ma'karona)" },
+                            { english: "potato", arabic: "بطاطا (batata)" },
+                            { english: "rice", arabic: "أرز (aruz)" },
+                            { english: "salad", arabic: "سلطة (salata)" },
+                            { english: "soup", arabic: "حساء (hasa')" },
+                            { english: "tea", arabic: "شاي (shay)" },
+                            { english: "water", arabic: "ماء (ma')" },
+                            { english: "wine", arabic: "نبيذ (nabidh)" }
+                        ],
+                        "english-bengali": [
+                            { english: "apple", bengali: "আপেল (apel)" },
+                            { english: "banana", bengali: "কলা (kola)" },
+                            { english: "bread", bengali: "রুটি (ruti)" },
+                            { english: "cheese", bengali: "পনির (ponir)" },
+                            { english: "chicken", bengali: "মুরগি (murgi)" },
+                            { english: "coffee", bengali: "কফি (kofi)" },
+                            { english: "egg", bengali: "ডিম (dim)" },
+                            { english: "fish", bengali: "মাছ (mach)" },
+                            { english: "juice", bengali: "রস (rosh)" },
+                            { english: "meat", bengali: "মাংস (mangso)" },
+                            { english: "milk", bengali: "দুধ (dudh)" },
+                            { english: "orange", bengali: "কমলা (komla)" },
+                            { english: "pasta", bengali: "পাস্তা (pasta)" },
+                            { english: "potato", bengali: "আলু (alu)" },
+                            { english: "rice", bengali: "ভাত (bhat)" },
+                            { english: "salad", bengali: "সালাদ (salad)" },
+                            { english: "soup", bengali: "স্যুপ (syup)" },
+                            { english: "tea", bengali: "চা (cha)" },
+                            { english: "water", bengali: "পানি (pani)" },
+                            { english: "wine", bengali: "মদ (mod)" }
+                        ]
+                    }
+                },
+                "colors": {
+                    name: "Colors",
+                    vocabulary: {
+                        "english-german": [
+                            { english: "black", german: "schwarz" },
+                            { english: "blue", german: "blau" },
+                            { english: "brown", german: "braun" },
+                            { english: "gray", german: "grau" },
+                            { english: "green", german: "grün" },
+                            { english: "orange", german: "orange" },
+                            { english: "pink", german: "rosa" },
+                            { english: "purple", german: "lila" },
+                            { english: "red", german: "rot" },
+                            { english: "white", german: "weiß" },
+                            { english: "yellow", german: "gelb" },
+                            { english: "dark blue", german: "dunkelblau" },
+                            { english: "light blue", german: "hellblau" },
+                            { english: "dark green", german: "dunkelgrün" },
+                            { english: "light green", german: "hellgrün" }
+                        ],
+                        "english-french": [
+                            { english: "black", french: "noir" },
+                            { english: "blue", french: "bleu" },
+                            { english: "brown", french: "marron" },
+                            { english: "gray", french: "gris" },
+                            { english: "green", french: "vert" },
+                            { english: "orange", french: "orange" },
+                            { english: "pink", french: "rose" },
+                            { english: "purple", french: "violet" },
+                            { english: "red", french: "rouge" },
+                            { english: "white", french: "blanc" },
+                            { english: "yellow", french: "jaune" },
+                            { english: "dark blue", french: "bleu foncé" },
+                            { english: "light blue", french: "bleu clair" },
+                            { english: "dark green", french: "vert foncé" },
+                            { english: "light green", french: "vert clair" }
+                        ],
+                        "english-spanish": [
+                            { english: "black", spanish: "negro" },
+                            { english: "blue", spanish: "azul" },
+                            { english: "brown", spanish: "marrón" },
+                            { english: "gray", spanish: "gris" },
+                            { english: "green", spanish: "verde" },
+                            { english: "orange", spanish: "naranja" },
+                            { english: "pink", spanish: "rosa" },
+                            { english: "purple", spanish: "morado" },
+                            { english: "red", spanish: "rojo" },
+                            { english: "white", spanish: "blanco" },
+                            { english: "yellow", spanish: "amarillo" },
+                            { english: "dark blue", spanish: "azul oscuro" },
+                            { english: "light blue", spanish: "azul claro" },
+                            { english: "dark green", spanish: "verde oscuro" },
+                            { english: "light green", spanish: "verde claro" }
+                        ],
+                        "english-italian": [
+                            { english: "black", italian: "nero" },
+                            { english: "blue", italian: "blu" },
+                            { english: "brown", italian: "marrone" },
+                            { english: "gray", italian: "grigio" },
+                            { english: "green", italian: "verde" },
+                            { english: "orange", italian: "arancione" },
+                            { english: "pink", italian: "rosa" },
+                            { english: "purple", italian: "viola" },
+                            { english: "red", italian: "rosso" },
+                            { english: "white", italian: "bianco" },
+                            { english: "yellow", italian: "giallo" },
+                            { english: "dark blue", italian: "blu scuro" },
+                            { english: "light blue", italian: "azzurro" },
+                            { english: "dark green", italian: "verde scuro" },
+                            { english: "light green", italian: "verde chiaro" }
+                        ],
+                        "english-hindi": [
+                            { english: "black", hindi: "काला (kala)" },
+                            { english: "blue", hindi: "नीला (neela)" },
+                            { english: "brown", hindi: "भूरा (bhoora)" },
+                            { english: "gray", hindi: "स्लेटी (sleti)" },
+                            { english: "green", hindi: "हरा (hara)" },
+                            { english: "orange", hindi: "नारंगी (narangi)" },
+                            { english: "pink", hindi: "गुलाबी (gulabi)" },
+                            { english: "purple", hindi: "बैंगनी (baingani)" },
+                            { english: "red", hindi: "लाल (lal)" },
+                            { english: "white", hindi: "सफेद (safed)" },
+                            { english: "yellow", hindi: "पीला (peela)" },
+                            { english: "dark blue", hindi: "गहरा नीला (gehra neela)" },
+                            { english: "light blue", hindi: "हल्का नीला (halka neela)" },
+                            { english: "dark green", hindi: "गहरा हरा (gehra hara)" },
+                            { english: "light green", hindi: "हल्का हरा (halka hara)" }
+                        ],
+                        "english-arabic": [
+                            { english: "black", arabic: "أسود (aswad)" },
+                            { english: "blue", arabic: "أزرق (azraq)" },
+                            { english: "brown", arabic: "بني (bunni)" },
+                            { english: "gray", arabic: "رمادي (ramadi)" },
+                            { english: "green", arabic: "أخضر (akhdar)" },
+                            { english: "orange", arabic: "برتقالي (burtuqali)" },
+                            { english: "pink", arabic: "وردي (wardi)" },
+                            { english: "purple", arabic: "بنفسجي (banafsaji)" },
+                            { english: "red", arabic: "أحمر (ahmar)" },
+                            { english: "white", arabic: "أبيض (abyad)" },
+                            { english: "yellow", arabic: "أصفر (asfar)" },
+                            { english: "dark blue", arabic: "أزرق داكن (azraq dakin)" },
+                            { english: "light blue", arabic: "أزرق فاتح (azraq fatih)" },
+                            { english: "dark green", arabic: "أخضر داكن (akhdar dakin)" },
+                            { english: "light green", arabic: "أخضر فاتح (akhdar fatih)" }
+                        ],
+                        "english-bengali": [
+                            { english: "black", bengali: "কালো (kalo)" },
+                            { english: "blue", bengali: "নীল (nil)" },
+                            { english: "brown", bengali: "বাদামি (badami)" },
+                            { english: "gray", bengali: "ধূসর (dhushor)" },
+                            { english: "green", bengali: "সবুজ (sobuj)" },
+                            { english: "orange", bengali: "কমলা (komla)" },
+                            { english: "pink", bengali: "গোলাপি (golapi)" },
+                            { english: "purple", bengali: "বেগুনি (beguni)" },
+                            { english: "red", bengali: "লাল (lal)" },
+                            { english: "white", bengali: "সাদা (sada)" },
+                            { english: "yellow", bengali: "হলুদ (holud)" },
+                            { english: "dark blue", bengali: "গাঢ় নীল (gar nil)" },
+                            { english: "light blue", bengali: "হালকা নীল (halka nil)" },
+                            { english: "dark green", bengali: "গাঢ় সবুজ (gar sobuj)" },
+                            { english: "light green", bengali: "হালকা সবুজ (halka sobuj)" }
+                        ]
+                    }
+                },
+                "body": {
+                    name: "Body Parts",
+                    vocabulary: {
+                        "english-german": [
+                            { english: "arm", german: "Arm" },
+                            { english: "back", german: "Rücken" },
+                            { english: "ear", german: "Ohr" },
+                            { english: "eye", german: "Auge" },
+                            { english: "face", german: "Gesicht" },
+                            { english: "finger", german: "Finger" },
+                            { english: "foot", german: "Fuß" },
+                            { english: "hair", german: "Haar" },
+                            { english: "hand", german: "Hand" },
+                            { english: "head", german: "Kopf" },
+                            { english: "heart", german: "Herz" },
+                            { english: "leg", german: "Bein" },
+                            { english: "mouth", german: "Mund" },
+                            { english: "neck", german: "Hals" },
+                            { english: "nose", german: "Nase" },
+                            { english: "shoulder", german: "Schulter" },
+                            { english: "skin", german: "Haut" },
+                            { english: "stomach", german: "Magen" },
+                            { english: "teeth", german: "Zähne" },
+                            { english: "tongue", german: "Zunge" }
+                        ],
+                        "english-french": [
+                            { english: "arm", french: "bras" },
+                            { english: "back", french: "dos" },
+                            { english: "ear", french: "oreille" },
+                            { english: "eye", french: "œil" },
+                            { english: "face", french: "visage" },
+                            { english: "finger", french: "doigt" },
+                            { english: "foot", french: "pied" },
+                            { english: "hair", french: "cheveux" },
+                            { english: "hand", french: "main" },
+                            { english: "head", french: "tête" },
+                            { english: "heart", french: "cœur" },
+                            { english: "leg", french: "jambe" },
+                            { english: "mouth", french: "bouche" },
+                            { english: "neck", french: "cou" },
+                            { english: "nose", french: "nez" },
+                            { english: "shoulder", french: "épaule" },
+                            { english: "skin", french: "peau" },
+                            { english: "stomach", french: "estomac" },
+                            { english: "teeth", french: "dents" },
+                            { english: "tongue", french: "langue" }
+                        ],
+                        "english-spanish": [
+                            { english: "arm", spanish: "brazo" },
+                            { english: "back", spanish: "espalda" },
+                            { english: "ear", spanish: "oreja" },
+                            { english: "eye", spanish: "ojo" },
+                            { english: "face", spanish: "cara" },
+                            { english: "finger", spanish: "dedo" },
+                            { english: "foot", spanish: "pie" },
+                            { english: "hair", spanish: "pelo" },
+                            { english: "hand", spanish: "mano" },
+                            { english: "head", spanish: "cabeza" },
+                            { english: "heart", spanish: "corazón" },
+                            { english: "leg", spanish: "pierna" },
+                            { english: "mouth", spanish: "boca" },
+                            { english: "neck", spanish: "cuello" },
+                            { english: "nose", spanish: "nariz" },
+                            { english: "shoulder", spanish: "hombro" },
+                            { english: "skin", spanish: "piel" },
+                            { english: "stomach", spanish: "estómago" },
+                            { english: "teeth", spanish: "dientes" },
+                            { english: "tongue", spanish: "lengua" }
+                        ],
+                        "english-italian": [
+                            { english: "arm", italian: "braccio" },
+                            { english: "back", italian: "schiena" },
+                            { english: "ear", italian: "orecchio" },
+                            { english: "eye", italian: "occhio" },
+                            { english: "face", italian: "faccia" },
+                            { english: "finger", italian: "dito" },
+                            { english: "foot", italian: "piede" },
+                            { english: "hair", italian: "capelli" },
+                            { english: "hand", italian: "mano" },
+                            { english: "head", italian: "testa" },
+                            { english: "heart", italian: "cuore" },
+                            { english: "leg", italian: "gamba" },
+                            { english: "mouth", italian: "bocca" },
+                            { english: "neck", italian: "collo" },
+                            { english: "nose", italian: "naso" },
+                            { english: "shoulder", italian: "spalla" },
+                            { english: "skin", italian: "pelle" },
+                            { english: "stomach", italian: "stomaco" },
+                            { english: "teeth", italian: "denti" },
+                            { english: "tongue", italian: "lingua" }
+                        ],
+                        "english-hindi": [
+                            { english: "arm", hindi: "बाजू (baaju)" },
+                            { english: "back", hindi: "पीठ (peeth)" },
+                            { english: "ear", hindi: "कान (kaan)" },
+                            { english: "eye", hindi: "आँख (aankh)" },
+                            { english: "face", hindi: "चेहरा (chehra)" },
+                            { english: "finger", hindi: "उंगली (ungli)" },
+                            { english: "foot", hindi: "पैर (pair)" },
+                            { english: "hair", hindi: "बाल (baal)" },
+                            { english: "hand", hindi: "हाथ (haath)" },
+                            { english: "head", hindi: "सिर (sir)" },
+                            { english: "heart", hindi: "दिल (dil)" },
+                            { english: "leg", hindi: "टांग (taang)" },
+                            { english: "mouth", hindi: "मुँह (munh)" },
+                            { english: "neck", hindi: "गर्दन (gardan)" },
+                            { english: "nose", hindi: "नाक (naak)" },
+                            { english: "shoulder", hindi: "कंधा (kandha)" },
+                            { english: "skin", hindi: "त्वचा (tvacha)" },
+                            { english: "stomach", hindi: "पेट (pet)" },
+                            { english: "teeth", hindi: "दांत (daant)" },
+                            { english: "tongue", hindi: "जीभ (jeebh)" }
+                        ],
+                        "english-arabic": [
+                            { english: "arm", arabic: "ذراع (dhira')" },
+                            { english: "back", arabic: "ظهر (zahr)" },
+                            { english: "ear", arabic: "أذن (udhun)" },
+                            { english: "eye", arabic: "عين (ayn)" },
+                            { english: "face", arabic: "وجه (wajh)" },
+                            { english: "finger", arabic: "إصبع (isba')" },
+                            { english: "foot", arabic: "قدم (qadam)" },
+                            { english: "hair", arabic: "شعر (sha'r)" },
+                            { english: "hand", arabic: "يد (yad)" },
+                            { english: "head", arabic: "رأس (ra's)" },
+                            { english: "heart", arabic: "قلب (qalb)" },
+                            { english: "leg", arabic: "ساق (saq)" },
+                            { english: "mouth", arabic: "فم (fam)" },
+                            { english: "neck", arabic: "رقبة (raqaba)" },
+                            { english: "nose", arabic: "أنف (anf)" },
+                            { english: "shoulder", arabic: "كتف (katif)" },
+                            { english: "skin", arabic: "جلد (jild)" },
+                            { english: "stomach", arabic: "معدة (ma'ida)" },
+                            { english: "teeth", arabic: "أسنان (asnan)" },
+                            { english: "tongue", arabic: "لسان (lisan)" }
+                        ],
+                        "english-bengali": [
+                            { english: "arm", bengali: "বাহু (bahu)" },
+                            { english: "back", bengali: "পিঠ (pith)" },
+                            { english: "ear", bengali: "কান (kan)" },
+                            { english: "eye", bengali: "চোখ (chokh)" },
+                            { english: "face", bengali: "মুখ (mukh)" },
+                            { english: "finger", bengali: "আঙুল (angul)" },
+                            { english: "foot", bengali: "পা (pa)" },
+                            { english: "hair", bengali: "চুল (chul)" },
+                            { english: "hand", bengali: "হাত (hat)" },
+                            { english: "head", bengali: "মাথা (matha)" },
+                            { english: "heart", bengali: "হৃদয় (hridoy)" },
+                            { english: "leg", bengali: "পা (pa)" },
+                            { english: "mouth", bengali: "মুখ (mukh)" },
+                            { english: "neck", bengali: "ঘাড় (ghar)" },
+                            { english: "nose", bengali: "নাক (nak)" },
+                            { english: "shoulder", bengali: "কাঁধ (kandh)" },
+                            { english: "skin", bengali: "ত্বক (twok)" },
+                            { english: "stomach", bengali: "পেট (pet)" },
+                            { english: "teeth", bengali: "দাঁত (dant)" },
+                            { english: "tongue", bengali: "জিহ্বা (jihba)" }
+                        ]
+                    }
+                },
+                "time": {
+                    name: "Time & Days",
+                    vocabulary: {
+                        "english-german": [
+                            { english: "Monday", german: "Montag" },
+                            { english: "Tuesday", german: "Dienstag" },
+                            { english: "Wednesday", german: "Mittwoch" },
+                            { english: "Thursday", german: "Donnerstag" },
+                            { english: "Friday", german: "Freitag" },
+                            { english: "Saturday", german: "Samstag" },
+                            { english: "Sunday", german: "Sonntag" },
+                            { english: "day", german: "Tag" },
+                            { english: "week", german: "Woche" },
+                            { english: "month", german: "Monat" },
+                            { english: "year", german: "Jahr" },
+                            { english: "morning", german: "Morgen" },
+                            { english: "afternoon", german: "Nachmittag" },
+                            { english: "evening", german: "Abend" },
+                            { english: "night", german: "Nacht" },
+                            { english: "time", german: "Zeit" },
+                            { english: "hour", german: "Stunde" },
+                            { english: "minute", german: "Minute" },
+                            { english: "second", german: "Sekunde" },
+                            { english: "today", german: "heute" }
+                        ],
+                        "english-french": [
+                            { english: "Monday", french: "lundi" },
+                            { english: "Tuesday", french: "mardi" },
+                            { english: "Wednesday", french: "mercredi" },
+                            { english: "Thursday", french: "jeudi" },
+                            { english: "Friday", french: "vendredi" },
+                            { english: "Saturday", french: "samedi" },
+                            { english: "Sunday", french: "dimanche" },
+                            { english: "day", french: "jour" },
+                            { english: "week", french: "semaine" },
+                            { english: "month", french: "mois" },
+                            { english: "year", french: "année" },
+                            { english: "morning", french: "matin" },
+                            { english: "afternoon", french: "après-midi" },
+                            { english: "evening", french: "soir" },
+                            { english: "night", french: "nuit" },
+                            { english: "time", french: "temps" },
+                            { english: "hour", french: "heure" },
+                            { english: "minute", french: "minute" },
+                            { english: "second", french: "seconde" },
+                            { english: "today", french: "aujourd'hui" }
+                        ],
+                        "english-spanish": [
+                            { english: "Monday", spanish: "lunes" },
+                            { english: "Tuesday", spanish: "martes" },
+                            { english: "Wednesday", spanish: "miércoles" },
+                            { english: "Thursday", spanish: "jueves" },
+                            { english: "Friday", spanish: "viernes" },
+                            { english: "Saturday", spanish: "sábado" },
+                            { english: "Sunday", spanish: "domingo" },
+                            { english: "day", spanish: "día" },
+                            { english: "week", spanish: "semana" },
+                            { english: "month", spanish: "mes" },
+                            { english: "year", spanish: "año" },
+                            { english: "morning", spanish: "mañana" },
+                            { english: "afternoon", spanish: "tarde" },
+                            { english: "evening", spanish: "tarde/noche" },
+                            { english: "night", spanish: "noche" },
+                            { english: "time", spanish: "tiempo" },
+                            { english: "hour", spanish: "hora" },
+                            { english: "minute", spanish: "minuto" },
+                            { english: "second", spanish: "segundo" },
+                            { english: "today", spanish: "hoy" }
+                        ],
+                        "english-italian": [
+                            { english: "Monday", italian: "lunedì" },
+                            { english: "Tuesday", italian: "martedì" },
+                            { english: "Wednesday", italian: "mercoledì" },
+                            { english: "Thursday", italian: "giovedì" },
+                            { english: "Friday", italian: "venerdì" },
+                            { english: "Saturday", italian: "sabato" },
+                            { english: "Sunday", italian: "domenica" },
+                            { english: "day", italian: "giorno" },
+                            { english: "week", italian: "settimana" },
+                            { english: "month", italian: "mese" },
+                            { english: "year", italian: "anno" },
+                            { english: "morning", italian: "mattina" },
+                            { english: "afternoon", italian: "pomeriggio" },
+                            { english: "evening", italian: "sera" },
+                            { english: "night", italian: "notte" },
+                            { english: "time", italian: "tempo" },
+                            { english: "hour", italian: "ora" },
+                            { english: "minute", italian: "minuto" },
+                            { english: "second", italian: "secondo" },
+                            { english: "today", italian: "oggi" }
+                        ],
+                        "english-hindi": [
+                            { english: "Monday", hindi: "सोमवार (somvaar)" },
+                            { english: "Tuesday", hindi: "मंगलवार (mangalvaar)" },
+                            { english: "Wednesday", hindi: "बुधवार (budhvaar)" },
+                            { english: "Thursday", hindi: "गुरुवार (guruvaar)" },
+                            { english: "Friday", hindi: "शुक्रवार (shukravaar)" },
+                            { english: "Saturday", hindi: "शनिवार (shanivaar)" },
+                            { english: "Sunday", hindi: "रविवार (ravivaar)" },
+                            { english: "day", hindi: "दिन (din)" },
+                            { english: "week", hindi: "सप्ताह (saptaah)" },
+                            { english: "month", hindi: "महीना (maheena)" },
+                            { english: "year", hindi: "साल (saal)" },
+                            { english: "morning", hindi: "सुबह (subah)" },
+                            { english: "afternoon", hindi: "दोपहर (dophar)" },
+                            { english: "evening", hindi: "शाम (shaam)" },
+                            { english: "night", hindi: "रात (raat)" },
+                            { english: "time", hindi: "समय (samay)" },
+                            { english: "hour", hindi: "घंटा (ghanta)" },
+                            { english: "minute", hindi: "मिनट (minat)" },
+                            { english: "second", hindi: "सेकंड (sekand)" },
+                            { english: "today", hindi: "आज (aaj)" }
+                        ]
+                    }
+                },
+                "nature": {
+                    name: "Nature & Weather",
+                    vocabulary: {
+                        "english-german": [
+                            { english: "sun", german: "Sonne" },
+                            { english: "moon", german: "Mond" },
+                            { english: "star", german: "Stern" },
+                            { english: "sky", german: "Himmel" },
+                            { english: "cloud", german: "Wolke" },
+                            { english: "rain", german: "Regen" },
+                            { english: "snow", german: "Schnee" },
+                            { english: "wind", german: "Wind" },
+                            { english: "storm", german: "Sturm" },
+                            { english: "tree", german: "Baum" },
+                            { english: "flower", german: "Blume" },
+                            { english: "grass", german: "Gras" },
+                            { english: "mountain", german: "Berg" },
+                            { english: "sea", german: "Meer" },
+                            { english: "river", german: "Fluss" },
+                            { english: "lake", german: "See" },
+                            { english: "forest", german: "Wald" },
+                            { english: "beach", german: "Strand" },
+                            { english: "earth", german: "Erde" },
+                            { english: "fire", german: "Feuer" }
+                        ],
+                        "english-french": [
+                            { english: "sun", french: "soleil" },
+                            { english: "moon", french: "lune" },
+                            { english: "star", french: "étoile" },
+                            { english: "sky", french: "ciel" },
+                            { english: "cloud", french: "nuage" },
+                            { english: "rain", french: "pluie" },
+                            { english: "snow", french: "neige" },
+                            { english: "wind", french: "vent" },
+                            { english: "storm", french: "tempête" },
+                            { english: "tree", french: "arbre" },
+                            { english: "flower", french: "fleur" },
+                            { english: "grass", french: "herbe" },
+                            { english: "mountain", french: "montagne" },
+                            { english: "sea", french: "mer" },
+                            { english: "river", french: "rivière" },
+                            { english: "lake", french: "lac" },
+                            { english: "forest", french: "forêt" },
+                            { english: "beach", french: "plage" },
+                            { english: "earth", french: "terre" },
+                            { english: "fire", french: "feu" }
+                        ],
+                        "english-spanish": [
+                            { english: "sun", spanish: "sol" },
+                            { english: "moon", spanish: "luna" },
+                            { english: "star", spanish: "estrella" },
+                            { english: "sky", spanish: "cielo" },
+                            { english: "cloud", spanish: "nube" },
+                            { english: "rain", spanish: "lluvia" },
+                            { english: "snow", spanish: "nieve" },
+                            { english: "wind", spanish: "viento" },
+                            { english: "storm", spanish: "tormenta" },
+                            { english: "tree", spanish: "árbol" },
+                            { english: "flower", spanish: "flor" },
+                            { english: "grass", spanish: "hierba" },
+                            { english: "mountain", spanish: "montaña" },
+                            { english: "sea", spanish: "mar" },
+                            { english: "river", spanish: "río" },
+                            { english: "lake", spanish: "lago" },
+                            { english: "forest", spanish: "bosque" },
+                            { english: "beach", spanish: "playa" },
+                            { english: "earth", spanish: "tierra" },
+                            { english: "fire", spanish: "fuego" }
+                        ],
+                        "english-italian": [
+                            { english: "sun", italian: "sole" },
+                            { english: "moon", italian: "luna" },
+                            { english: "star", italian: "stella" },
+                            { english: "sky", italian: "cielo" },
+                            { english: "cloud", italian: "nuvola" },
+                            { english: "rain", italian: "pioggia" },
+                            { english: "snow", italian: "neve" },
+                            { english: "wind", italian: "vento" },
+                            { english: "storm", italian: "tempesta" },
+                            { english: "tree", italian: "albero" },
+                            { english: "flower", italian: "fiore" },
+                            { english: "grass", italian: "erba" },
+                            { english: "mountain", italian: "montagna" },
+                            { english: "sea", italian: "mare" },
+                            { english: "river", italian: "fiume" },
+                            { english: "lake", italian: "lago" },
+                            { english: "forest", italian: "foresta" },
+                            { english: "beach", italian: "spiaggia" },
+                            { english: "earth", italian: "terra" },
+                            { english: "fire", italian: "fuoco" }
+                        ],
+                        "english-hindi": [
+                            { english: "sun", hindi: "सूरज (suraj)" },
+                            { english: "moon", hindi: "चांद (chaand)" },
+                            { english: "star", hindi: "तारा (tara)" },
+                            { english: "sky", hindi: "आकाश (aakash)" },
+                            { english: "cloud", hindi: "बादल (badal)" },
+                            { english: "rain", hindi: "बारिश (baarish)" },
+                            { english: "snow", hindi: "बर्फ (barf)" },
+                            { english: "wind", hindi: "हवा (hava)" },
+                            { english: "storm", hindi: "तूफान (toofan)" },
+                            { english: "tree", hindi: "पेड़ (ped)" },
+                            { english: "flower", hindi: "फूल (phool)" },
+                            { english: "grass", hindi: "घास (ghaas)" },
+                            { english: "mountain", hindi: "पहाड़ (pahad)" },
+                            { english: "sea", hindi: "समुद्र (samudra)" },
+                            { english: "river", hindi: "नदी (nadi)" },
+                            { english: "lake", hindi: "झील (jheel)" },
+                            { english: "forest", hindi: "जंगल (jangal)" },
+                            { english: "beach", hindi: "समुद्र तट (samudra tat)" },
+                            { english: "earth", hindi: "पृथ्वी (prithvi)" },
+                            { english: "fire", hindi: "आग (aag)" }
+                        ]
+                    }
+                }
+            }
+        };
+
+        // Game state variables
+        let currentPairs = [];
+        let totalPairs = 10;
+        let matchedPairs = 0;
+        let selectedCards = [];
+        let totalScore = 0;
+        let attempts = 0;
+        let isProcessing = false;
+        let currentCategory = 'basics';
+        let currentLanguagePair = 'english-german';
+
+        // DOM elements
+        const sourceColumn = document.getElementById('source-column');
+        const targetColumn = document.getElementById('target-column');
+        const sourceColumnHeader = document.getElementById('source-column-header');
+        const targetColumnHeader = document.getElementById('target-column-header');
+        const matchedCounter = document.getElementById('matched-counter');
+        const scoreElement = document.getElementById('score');
+        const attemptsElement = document.getElementById('attempts');
+        const progressBar = document.getElementById('progress-bar');
+        const newWordsBtn = document.getElementById('new-words-btn');
+        const resetScoreBtn = document.getElementById('reset-score-btn');
+        const categorySelect = document.getElementById('category-select');
+        const languagePairSelect = document.getElementById('language-pair-select');
+        const difficultySelect = document.getElementById('difficulty-select');
+        const headerTitle = document.getElementById('header-title');
+
+        // Current vocabulary
+        let currentVocabulary = [];
+        
+        // Fisher-Yates shuffle algorithm
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        // Get current vocabulary based on category and language pair
+        function setCurrentVocabulary() {
+            currentVocabulary = languageData.categories[currentCategory].vocabulary[currentLanguagePair] || [];
+        }
+        
+        // Select random pairs from the vocabulary
+        function selectRandomPairs() {
+            // Create a copy of the current vocabulary array
+            const shuffled = [...currentVocabulary];
+            // Shuffle the array
+            shuffleArray(shuffled);
+            // Take the first 'totalPairs' elements or as many as available
+            return shuffled.slice(0, Math.min(totalPairs, shuffled.length));
+        }
+        
+        // Generate language pair select options
+        function populateLanguagePairSelect() {
+            languagePairSelect.innerHTML = '';
+            
+            // Create an option for each language pair
+            Object.keys(languageData.languagePairs).forEach(pairKey => {
+                const option = document.createElement('option');
+                option.value = pairKey;
+                option.textContent = languageData.languagePairs[pairKey].name;
+                languagePairSelect.appendChild(option);
+            });
+        }
+        
+        // Generate category select options
+        function populateCategorySelect() {
+            categorySelect.innerHTML = '';
+            
+            // Create an option for each category
+            Object.keys(languageData.categories).forEach(categoryKey => {
+                const option = document.createElement('option');
+                option.value = categoryKey;
+                option.textContent = languageData.categories[categoryKey].name;
+                categorySelect.appendChild(option);
+            });
+        }
+
+        // Create and display the game cards
+        function createGameCards() {
+            const languagePairInfo = languageData.languagePairs[currentLanguagePair];
+            const sourceLanguage = languagePairInfo.sourceLanguage;
+            const targetLanguage = languagePairInfo.targetLanguage;
+            
+            // Update column headers
+            sourceColumnHeader.textContent = languagePairInfo.sourceColumnLabel;
+            targetColumnHeader.textContent = languagePairInfo.targetColumnLabel;
+            
+            // Clear the columns
+            sourceColumn.innerHTML = '';
+            targetColumn.innerHTML = '';
+            
+            // Select random pairs
+            currentPairs = selectRandomPairs();
+            
+            // Create source language cards (left column)
+            const sourceWords = currentPairs.map(pair => pair[sourceLanguage]);
+            shuffleArray(sourceWords).forEach(word => {
+                const card = document.createElement('div');
+                card.className = 'card';
+                card.textContent = word;
+                card.dataset.value = word;
+                card.dataset.language = sourceLanguage;
+                card.addEventListener('click', handleCardClick);
+                sourceColumn.appendChild(card);
+            });
+            
+            // Create target language cards (right column)
+            const targetWords = currentPairs.map(pair => pair[targetLanguage]);
+            shuffleArray(targetWords).forEach(word => {
+                const card = document.createElement('div');
+                card.className = 'card';
+                card.textContent = word;
+                card.dataset.value = word;
+                card.dataset.language = targetLanguage;
+                card.addEventListener('click', handleCardClick);
+                targetColumn.appendChild(card);
+            });
+        }
+
+        // Handle card click events
+        function handleCardClick(event) {
+            if (isProcessing) return;
+            
+            const card = event.target;
+            
+            // Don't allow clicking already matched cards or the same card twice
+            if (card.classList.contains('match') || selectedCards.includes(card)) {
+                return;
+            }
+            
+            // Mark card as selected
+            card.classList.add('selected');
+            selectedCards.push(card);
+            
+            // If we have selected two cards, check for a match
+            if (selectedCards.length === 2) {
+                isProcessing = true;
+                checkForMatch();
+            }
+        }
+
+        // Check if the selected cards form a matching pair
+        function checkForMatch() {
+            const [card1, card2] = selectedCards;
+            const languagePairInfo = languageData.languagePairs[currentLanguagePair];
+            const sourceLanguage = languagePairInfo.sourceLanguage;
+            const targetLanguage = languagePairInfo.targetLanguage;
+            
+            // Cards must be from different languages
+            if (card1.dataset.language === card2.dataset.language) {
+                // Not a valid selection
+                setTimeout(() => {
+                    card1.classList.remove('selected');
+                    card2.classList.remove('selected');
+                    selectedCards = [];
+                    isProcessing = false;
+                }, 1000);
+                return;
+            }
+            
+            // Count this as an attempt
+            attempts++;
+            attemptsElement.textContent = attempts;
+            
+            // Find the corresponding pair
+            const sourceWord = card1.dataset.language === sourceLanguage 
+                ? card1.dataset.value 
+                : card2.dataset.value;
+            const targetWord = card1.dataset.language === targetLanguage 
+                ? card1.dataset.value 
+                : card2.dataset.value;
+            
+            // Check if this is a correct match
+            const isMatch = currentPairs.some(pair => 
+                pair[sourceLanguage] === sourceWord && 
+                pair[targetLanguage] === targetWord
+            );
+            
+            if (isMatch) {
+                // Handle successful match
+                setTimeout(() => {
+                    card1.classList.add('match');
+                    card2.classList.add('match');
+                    
+                    setTimeout(() => {
+                        card1.classList.add('fade-out');
+                        card2.classList.add('fade-out');
+                        
+                        matchedPairs++;
+                        totalScore++;
+                        updateStats();
+                        
+                        // Check if all pairs are matched
+                        if (matchedPairs === currentPairs.length) {
+                            setTimeout(loadNewRound, 1000);
+                        }
+                        
+                        selectedCards = [];
+                        isProcessing = false;
+                    }, 500);
+                }, 500);
+            } else {
+                // Handle incorrect match
+                setTimeout(() => {
+                    // Add incorrect class for the flash effect
+                    card1.classList.add('incorrect');
+                    card2.classList.add('incorrect');
+                    
+                    // Remove classes after animation completes
+                    setTimeout(() => {
+                        card1.classList.remove('selected', 'incorrect');
+                        card2.classList.remove('selected', 'incorrect');
+                        selectedCards = [];
+                        isProcessing = false;
+                    }, 500);
+                }, 500);
+            }
+        }
+
+        // Update the statistics display
+        function updateStats() {
+            matchedCounter.textContent = matchedPairs;
+            scoreElement.textContent = totalScore;
+            const progressPercentage = (matchedPairs / currentPairs.length) * 100;
+            progressBar.style.width = `${progressPercentage}%`;
+        }
+
+        // Load a new round with fresh word pairs
+        function loadNewRound() {
+            matchedPairs = 0;
+            selectedCards = [];
+            setCurrentVocabulary();
+            createGameCards();
+            updateStats();
+        }
+
+        // Initialize the game
+        function initGame() {
+            // Get values from selectors
+            currentCategory = categorySelect.value;
+            currentLanguagePair = languagePairSelect.value;
+            totalPairs = parseInt(difficultySelect.value);
+            
+            // Update header title based on language pair and category
+            const pairInfo = languageData.languagePairs[currentLanguagePair];
+            const categoryName = languageData.categories[currentCategory].name;
+            headerTitle.textContent = `${pairInfo.sourceColumnLabel} - ${pairInfo.targetColumnLabel} ${categoryName} Vocabulary`;
+            
+            setCurrentVocabulary();
+            createGameCards();
+            updateStats();
+        }
+        
+        // Handle category change
+        function handleCategoryChange() {
+            currentCategory = categorySelect.value;
+            loadNewRound();
+            
+            // Update header
+            const pairInfo = languageData.languagePairs[currentLanguagePair];
+            const categoryName = languageData.categories[currentCategory].name;
+            headerTitle.textContent = `${pairInfo.sourceColumnLabel} - ${pairInfo.targetColumnLabel} ${categoryName} Vocabulary`;
+        }
+        
+        // Handle language pair change
+        function handleLanguagePairChange() {
+            currentLanguagePair = languagePairSelect.value;
+            loadNewRound();
+            
+            // Update header
+            const pairInfo = languageData.languagePairs[currentLanguagePair];
+            const categoryName = languageData.categories[currentCategory].name;
+            headerTitle.textContent = `${pairInfo.sourceColumnLabel} - ${pairInfo.targetColumnLabel} ${categoryName} Vocabulary`;
+            
+            // Update column headers
+            sourceColumnHeader.textContent = pairInfo.sourceColumnLabel;
+            targetColumnHeader.textContent = pairInfo.targetColumnLabel;
+        }
+        
+        // Handle difficulty change
+        function handleDifficultyChange() {
+            totalPairs = parseInt(difficultySelect.value);
+            loadNewRound();
+        }
+        
+        // Reset score
+        function resetScore() {
+            totalScore = 0;
+            attempts = 0;
+            updateStats();
+        }
+
+        // Event listeners
+        newWordsBtn.addEventListener('click', loadNewRound);
+        resetScoreBtn.addEventListener('click', resetScore);
+        categorySelect.addEventListener('change', handleCategoryChange);
+        languagePairSelect.addEventListener('change', handleLanguagePairChange);
+        difficultySelect.addEventListener('change', handleDifficultyChange);
+
+        // Start the game when the page loads
+        window.addEventListener('load', () => {
+            populateLanguagePairSelect();
+            populateCategorySelect();
+            initGame();
+        });
+    </script>
+</body>
+</html>
